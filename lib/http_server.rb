@@ -1,5 +1,7 @@
 require 'socket'
 
+require_relative 'response'
+
 class HttpServer
   def initialize(port:)
     @port = port
@@ -18,11 +20,8 @@ class HttpServer
           break if line =~ /^\s*$/
         end
         request += client.read(content_length) if content_length > 0
-        client.print "HTTP/1.1 200 OK\r\n" +
-                     "Content-Type: text/plain\r\n" +
-                     "Content-Length: #{request.bytesize}\r\n" +
-                     "Connection: close\r\n" +
-                     "\r\n" + request
+        response = Response.new body: request
+        client.print response
         client.close
       end
     end
